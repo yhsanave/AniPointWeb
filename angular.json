@@ -110,7 +110,7 @@
         "deploy": {
           "builder": "angular-cli-ghpages:deploy",
           "options": {
-            "baseHref": "/AniPointWeb/"
+            "cname": "anipoint.yhsanave.me"
           }
         }
       }
