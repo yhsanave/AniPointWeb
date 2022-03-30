@@ -95,6 +95,7 @@
                 font-size: 1.2em;
                 color: #F44;
                 visibility: hidden;
+                z-index: 1;
             }
 
             .show-data {
@@ -186,5 +187,29 @@
         }
         
         
+    }
+}
+
+.search-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .search-box {
+        width: 100%;
+        padding-bottom: 10px;
+    }
+    
+    .search-results {
+        width: 100%;
+        margin: auto;
+
+        td {
+            padding-bottom: 5px;
+        } 
+
+        .cover-image {
+            height: 100px;
+        }
     }
 }

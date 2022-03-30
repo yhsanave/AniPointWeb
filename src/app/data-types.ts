@@ -14,7 +14,7 @@ export class Show {
   warnings = {'hasPrequel': false, 'episodeLength': false, 'shortDescription': false, 'missingFields': ['']}
   
   // Show Data
-  id?: number;
+  id: number;
   titles: any;
   description: string;
   season: string;

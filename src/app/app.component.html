@@ -8,8 +8,18 @@
     <label for="meetingDate" style="padding: 5px;">Date:  </label>
     <input id="meetingDate" type="date" [(ngModel)]="ballot.date">
     <div style="width:20%"></div>
-    <input id="addShowButton" type="button" value="Add Show" style="margin-right: 20px">
-    <input id="settignsButton" type="button" value="Settings">
+    <button id="addShowButton" type="button" class="btn btn-primary" style="margin-right: 10px" (click)="openModal(addShowTemplate, {background: true, size: 'lg'})">
+      <i class="fa-solid fa-plus"></i>
+      Add Show
+    </button>
+    <button id="settignsButton" type="button" class="btn btn-primary" style="margin-right: 10px" (click)="openModal(settingsTemplate)">
+      <i class="fa-solid fa-gear"></i>
+      Settings
+    </button>
+    <button id="exportButton" type="button" class="btn btn-success">
+      <i class="fa-solid fa-download"></i>
+      Export
+    </button>
   </div>
 </div>
 
@@ -17,14 +27,13 @@
   <div class="shows">
     <div class="show-container" *ngFor="let show of ballot.shows" style="background-image:url({{show.coverImage}})">
       <div class="show-data-container">
-        <div class="show-background">
-          <i class="fa-solid fa-triangle-exclamation warnings-icon" *ngIf="getWarnings(show).length"></i>
-          <i class="fa-solid fa-trash-can delete-icon" ngbTooltip="Delete Show"></i>
-        </div>
+        <div class="show-background"></div>
+        <i class="fa-solid fa-triangle-exclamation warnings-icon" *ngIf="getWarnings(show).length"></i>
+        <i class="fa-solid fa-trash-can delete-icon" ngbTooltip="Delete Show" (click)="openModal(confirmDelete)"></i>
         <div class="show-data">
           <div class="show-title-container">
             <p class="show-title" >
-                <b>{{show.titles.english}}</b>
+                <b>{{show.titles.english ?? show.titles.romaji}}</b>
             </p>
           </div>
           <div class="episode-container">
@@ -64,9 +73,58 @@
           <div class="show-link">
             <a href="{{show.siteUrl}}" target="_blank">View on AniList <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
           </div>
+          
+          <ng-template #confirmDelete>
+            <div class="modal-header">
+              <h4 class="modal-title" id="modal-basic-title">Delete Show?</h4>
+              <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                Are you sure you want to delete {{show.titles.english}}?
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-primary" (click)="closeModal()">Cancel</button>
+              <button type="button" class="btn btn-danger" (click)="removeShow(show.id)">Delete</button>
+            </div>
+          </ng-template>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<ng-template #addShowTemplate>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Add Show</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="search-container">
+      <input type="search-box" placeholder="Search..." (keyup)="searchTimeout($event)">
+      <table class="search-results">
+        <tr *ngFor="let result of searchResult">
+          <td>
+            <img class="cover-image" src="{{result.coverImage.large}}">
+          </td>
+          <td>
+            <a href="{{result.siteUrl}}" target="_blank">
+              {{result.title.english ?? result.title.romaji}}
+              <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+          </td>
+          <td>{{result.seasonYear}}</td>
+          <td style="width:101px">
+            <button class="btn btn-primary" (click)="addShow(result.id)">Add Show</button>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #settingsTemplate>
+
+</ng-template>
 
