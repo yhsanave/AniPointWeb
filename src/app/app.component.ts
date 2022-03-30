@@ -21,12 +21,12 @@ export class AppComponent {
   ) { }
 
   ngAfterViewInit(): void {
-    this.addShow(1);
-    this.addShow(129190);
-    this.addShow(97709);
-    this.addShow(116589);
-    this.addShow(1575);
-    this.search('naruto');
+    // this.addShow(1);
+    // this.addShow(129190);
+    // this.addShow(97709);
+    // this.addShow(116589);
+    // this.addShow(1575);
+    // this.search('naruto');
   }
 
   addShow(id: number): void {
@@ -75,7 +75,6 @@ export class AppComponent {
     this.dataService.getShows(query).subscribe({
       next: (data) => {
         this.searchResult = data.data.Page.media;
-        console.log(this.searchResult);
       },
       error: (e) => console.log(e)
     });
@@ -89,5 +88,9 @@ export class AppComponent {
         $this.search(event.target.value);
       }
     }, 500);
+  }
+
+  isDuplicateShow(id: number): boolean {
+    return this.ballot.shows.some(s => s.id === id);
   }
 }

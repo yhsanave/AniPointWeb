@@ -2,19 +2,15 @@
   <div class="nav-wrap">
     <img id="logo" src="assets/AniPointLogoTransparent.png" alt="AP">
     <label for="meetingTitle" style="padding: 5px;">Meeting Title:</label>
-    <input id="meetingTitle" type="text" [(ngModel)]="ballot.title" placeholder="Theme Night" style="max-width:max-content">
+    <input class="form-control" id="meetingTitle" type="text" [(ngModel)]="ballot.title" placeholder="Theme Night" style="max-width:200px">
     <label for="meetingNumber" style="padding: 5px;">Meeting Number:  </label>
-    <input id="meetingNumber" type="number" [(ngModel)]="ballot.number" style="max-width: 50px">
+    <input class="form-control" id="meetingNumber" type="number" [(ngModel)]="ballot.number" style="max-width:70px">
     <label for="meetingDate" style="padding: 5px;">Date:  </label>
-    <input id="meetingDate" type="date" [(ngModel)]="ballot.date">
+    <input class="form-control" id="meetingDate" type="date" [(ngModel)]="ballot.date" style="max-width:150px">
     <div style="width:20%"></div>
     <button id="addShowButton" type="button" class="btn btn-primary" style="margin-right: 10px" (click)="openModal(addShowTemplate, {background: true, size: 'lg'})">
       <i class="fa-solid fa-plus"></i>
       Add Show
-    </button>
-    <button id="settignsButton" type="button" class="btn btn-primary" style="margin-right: 10px" (click)="openModal(settingsTemplate)">
-      <i class="fa-solid fa-gear"></i>
-      Settings
     </button>
     <button id="exportButton" type="button" class="btn btn-success">
       <i class="fa-solid fa-download"></i>
@@ -24,6 +20,9 @@
 </div>
 
 <div class="page">
+  <div id="noShows" *ngIf="!ballot.shows.length">
+    <h4>Looks like there's nothing here yet. Click Add Show to get started.</h4>
+  </div>
   <div class="shows">
     <div class="show-container" *ngFor="let show of ballot.shows" style="background-image:url({{show.coverImage}})">
       <div class="show-data-container">
@@ -102,7 +101,7 @@
   </div>
   <div class="modal-body">
     <div class="search-container">
-      <input type="search-box" placeholder="Search..." (keyup)="searchTimeout($event)">
+      <input class="form-control mb-3" type="search" placeholder="Search..." (keyup)="searchTimeout($event)">
       <table class="search-results">
         <tr *ngFor="let result of searchResult">
           <td>
@@ -116,7 +115,7 @@
           </td>
           <td>{{result.seasonYear}}</td>
           <td style="width:101px">
-            <button class="btn btn-primary" (click)="addShow(result.id)">Add Show</button>
+            <button class="btn btn-primary" [disabled]="isDuplicateShow(result.id)" (click)="addShow(result.id)">{{isDuplicateShow(result.id) ? 'Added' : 'Add Show'}}</button>
           </td>
         </tr>
       </table>
