@@ -1,3 +1,5 @@
+<app-toasts aria-live="polite" aria-atomic="true"></app-toasts>
+
 <div class="nav">
   <div class="nav-wrap">
     <img id="logo" src="assets/AniPointLogoTransparent.png" alt="AP">
@@ -12,7 +14,11 @@
       <i class="fa-solid fa-plus"></i>
       Add Show
     </button>
-    <button id="exportButton" type="button" class="btn btn-success">
+    <button id="importButton" type="button" class="btn btn-primary" style="margin-right: 10px" (click)="openModal(importTemplate, {background: true, size: 'md'})">
+      <i class="fa-solid fa-upload"></i>
+      Import
+    </button>
+    <button id="exportButton" type="button" class="btn btn-success" (click)="export(progressModal, { background: 'static', size: 'md' })">
       <i class="fa-solid fa-download"></i>
       Export
     </button>
@@ -61,7 +67,7 @@
             </thead>
             <tbody>
               <tr>
-                <td><input id="gif" type="file" [(ngModel)]="show.gif" style="width:250px"></td>
+                <td><input id="gif" type="file" accept="image/jpeg, image/png, image/gif" [(ngModel)]="show.gif" style="width:250px"></td>
               </tr>
             </tbody>
           </table>
@@ -80,7 +86,7 @@
             </div>
             <div class="modal-body">
               <div class="mb-3">
-                Are you sure you want to delete {{show.titles.english}}?
+                Are you sure you want to delete {{show.titles.english ?? show.titles.romaji}}?
               </div>
             </div>
             <div class="modal-footer">
@@ -123,7 +129,39 @@
   </div>
 </ng-template>
 
-<ng-template #settingsTemplate>
-
+<ng-template #progressModal>
+  <div class="modal-header">Exporting Presentation...</div>
+  <div class="modal-body">
+    <div class="input-group mb-3">
+      <div class="input-group-prepend" style="width:100%">
+        <span class="input-group-text text-center" id="basic-addon1">Ballot Import Code:</span>
+        <textarea type="text" id="importCode" class="form-control" readonly="true" onclick="this.select()" [(ngModel)]="importCode"></textarea>
+      </div>
+    </div>
+    <p class="text-center">This code is used to import the ballot in case you need to made edits later. You can also find it in the speaker notes on the first slide of the presentation.</p>
+  </div>
+  <div class="modal-footer">
+    <ngb-progressbar type="success" [value]="100" [animated]="true" [striped]="true" style="width:100%"></ngb-progressbar>
+  </div>
 </ng-template>
 
+<ng-template #importTemplate>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Import Ballot</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+  </div>
+  <div class="modal-body">
+    <p>Paste your import code here to import a ballot automatically. You can find the import code in the export menu or on in the speaker notes on the first slide of an exported presentation.</p>
+    <p class="text-center">
+      <b>
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        WARNING: This will overwrite your current ballot!
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </b>
+    </p>
+    <input type="text" class="form-control" [(ngModel)]="toImport">
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="importBallot()">Import</button>
+  </div>
+</ng-template>

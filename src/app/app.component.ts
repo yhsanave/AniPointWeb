@@ -2,6 +2,8 @@ import { Component, OnInit, AfterViewInit, TemplateRef } from '@angular/core';
 import { DataService } from './data.service';
 import { Ballot, Show } from './data-types';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { PptxService } from './pptx.service';
+import { ToastService } from './toasts.service';
 
 @Component({
   selector: 'app-root',
@@ -14,20 +16,27 @@ export class AppComponent {
   searchResult?: any[];
   currentModal?: NgbModalRef;
   timeout: any = null;
+  toImport: string = '';
+
+  get importCode() {
+      return JSON.stringify(this.ballot);
+  }
+
+  set importCode(data: string) {
+    try {
+      this.ballot = JSON.parse(data) as Ballot;
+      this.toastService.show('Imported successfully', { classname: 'bg-success text-light' });
+    } catch {
+      this.toastService.show('Invalid import code', { classname: 'bg-danger text-light' });
+    }
+  }
 
   constructor(
     private dataService: DataService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private pptxService: PptxService,
+    private toastService: ToastService
   ) { }
-
-  ngAfterViewInit(): void {
-    // this.addShow(1);
-    // this.addShow(129190);
-    // this.addShow(97709);
-    // this.addShow(116589);
-    // this.addShow(1575);
-    // this.search('naruto');
-  }
 
   addShow(id: number): void {
     if (!this.ballot.shows.some(show => show.id === id)) {
@@ -35,11 +44,12 @@ export class AppComponent {
         next: (data) => {
           const show = new Show(data);
           this.ballot.shows.push(show);
+          this.toastService.show('Added '.concat(show.titles.english ?? show.titles.romaji, ' successfully'), { classname: 'bg-success text-light' });
         },
-        error: (e) => console.log(e)
+        error: () => this.toastService.show('Failed to get show data', {classname: 'bg-danger text-light'})
       });
     } else {
-      console.log('Show already added'); // TODO: Pop up a warning
+      this.toastService.show('Show already added', {classname: 'bg-danger text-light'});
     }
     this.closeModal();
   }
@@ -92,5 +102,17 @@ export class AppComponent {
 
   isDuplicateShow(id: number): boolean {
     return this.ballot.shows.some(s => s.id === id);
+  }
+
+  export(progressModal: TemplateRef<any>, options?: any): void {
+    this.openModal(progressModal, options);
+    this.pptxService.exportPresentation(this.ballot);
+  }
+
+  importBallot(): void {
+    this.importCode = this.toImport;
+    this.toImport = '';
+    this.closeModal();
+    console.log(this.ballot);
   }
 }

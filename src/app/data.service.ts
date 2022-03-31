@@ -12,53 +12,46 @@ export class DataService {
   ) { }
 
   public getShowData(id: number): Observable<any> {
-    var query = `query ($id: Int){
+    var query = `query ($id: Int) {
       Media(type: ANIME, id: $id) {
-          id
-          title {
-              english
-              romaji
-              native
+        id
+        title {
+          english
+          romaji
+          native
+        }
+        description(asHtml: false)
+        season
+        seasonYear
+        studios(isMain: true) {
+          nodes {
+            name
           }
-          description(asHtml: false)
-          season
-          seasonYear
-          studios(isMain: true) {
-              nodes {
-                  name
-              }
-          }
-          staff {
-              edges {
-                  role
-                  node {
-                      name {
-                          full
-                      }
-                  }
-              }
-          }
-          source
-          genres
-          duration
-          relations {
+        }
+        staff {
           edges {
-              relationType
-              node {
-                  id
-                  title {
-                      english
-                  }
+            role
+            node {
+              name {
+                full
               }
+            }
           }
-      }
-      siteUrl
-      coverImage{
+        }
+        source
+        genres
+        duration
+        relations {
+          edges {
+            relationType
+          }
+        }
+        siteUrl
+        coverImage {
           extraLarge
-          color
+        }
       }
-  }
-  }`;
+    }`;
     
     var options = {
       headers: {

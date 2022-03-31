@@ -1,7 +1,7 @@
 export class Ballot {
   title: string = "";
   number: number = 0;
-  date: Date = new Date;
+  date: Date = new Date();
   shows: Show[] = [];
 }
 
@@ -10,13 +10,13 @@ export class Show {
   episode: string = "1";
   subbed: boolean = true;
   dubbed: boolean = false;
-  gif?: File;
+  gifPath: string = './assets/default.gif';
   warnings = {'hasPrequel': false, 'episodeLength': false, 'shortDescription': false, 'missingFields': ['']}
   
   // Show Data
   id: number;
   titles: any;
-  description: string;
+  description: string = '';
   season: string;
   year: number;
   studio: string;
@@ -24,16 +24,20 @@ export class Show {
   source: string;
   genres: string[];
   duration: number;
-  relations: any;
+  prequels: any;
   siteUrl: string;
   coverImage: string;
-  color: string;
+
+  set gif(file: File) {
+    if (this.gifPath) URL.revokeObjectURL(this.gifPath);
+    this.gifPath = URL.createObjectURL(file);
+    console.log(this.gifPath);
+  }
 
   constructor(data: any) {
     data = data.data.Media;
     this.id = data.id;
-    this.titles = data.title; // {english: string, romaji: string, native: string}
-    this.description = data.description ?? '';
+    this.titles = data.title; // {english?: string, romaji?: string, native?: string}
     this.season = data.season ?? '';
     this.year = data.seasonYear ?? 0;
     this.studio = data.studios.nodes[0] ? data.studios.nodes[0].name : '';
@@ -43,9 +47,18 @@ export class Show {
     this.duration = data.duration ?? 0;
     this.siteUrl = data.siteUrl;
     this.coverImage = data.coverImage.extraLarge ?? '';
-    this.color = data.coverImage.color ?? '';
-    this.relations = data.relations.edges;
-    
+    this.prequels = data.relations.edges.filter((r: { relationType: string; }) => r.relationType.toUpperCase() === 'PREQUEL');
+
+    // Break the description up by paragraphs and add them back in until it is a good length
+    let descParts = data.description.replace('<br>\n', '<br>').replace('<br><br>', '<br>').split('<br>');
+    while (this.description.length < 200) {
+      try {
+        this.description = this.description.concat(' ', descParts.pop(0));
+      } catch {
+        break;
+      }
+    }
+
     this.resolveWarnings();
   }
 
@@ -53,7 +66,7 @@ export class Show {
     // If episode length is non-standard
     this.warnings.episodeLength = this.duration < 20 || this.duration > 30;
     // If show has a prequel listed
-    this.warnings.hasPrequel = this.relations.some((r: { relationType: string; }) => r.relationType.toUpperCase() === 'PREQUEL');
+    this.warnings.hasPrequel = this.prequels.length;
     // If description is short
     this.warnings.shortDescription = this.description.length < 200;
     // Get a list of the missing fields
