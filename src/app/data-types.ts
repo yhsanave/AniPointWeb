@@ -1,16 +1,64 @@
 export class Ballot {
-  title: string = "";
+  title: string = '';
   number: number = 0;
   date: Date = new Date();
   shows: Show[] = [];
+
+  get exportShows(): ExportShow[] {
+    return this.shows.map(s => s.export);
+  }
+
+  set exportShows(x) {}
+
+  get exportCode() {
+    return JSON.stringify({
+      title: this.title,
+      number: this.number,
+      date: this.date,
+      shows: [],
+      exportShows: this.exportShows
+    });
+  }
+}
+
+export class KeiBallot {
+  body: string;
+  footer: string;
+  ballot: Ballot;
+
+  constructor(ballot: Ballot, body: string, footer: string) {
+    this.ballot = ballot;
+    this.body = body;
+    this.footer = footer;
+  }
+
+  get header(): string {
+    return this.ballot.title.concat(' ', this.dateString)
+  }
+
+  get shows(): string[] {
+    return this.ballot.shows.map(s => s.titles.english ?? s.titles.romaji);
+  }
+
+  get exportCode() {
+    return JSON.stringify(this, ['header', 'body', 'shows', 'footer']);
+  }
+
+  get dateString() {
+    return [
+      (this.ballot.date.getMonth() + 1).toString(),
+      this.ballot.date.getDate().toString(),
+      this.ballot.date.getFullYear().toString()
+    ].join('/');
+  }
 }
 
 export class Show {
   // List Data
-  episode: string = "1";
-  subbed: boolean = true;
-  dubbed: boolean = false;
-  gifPath: string = './assets/default.gif';
+  episode: string;
+  subbed: boolean;
+  dubbed: boolean;
+  gifPath: string = '';
   warnings = {'hasPrequel': false, 'episodeLength': false, 'shortDescription': false, 'missingFields': ['']}
   
   // Show Data
@@ -28,13 +76,12 @@ export class Show {
   siteUrl: string;
   coverImage: string;
 
-  set gif(file: File) {
-    if (this.gifPath) URL.revokeObjectURL(this.gifPath);
-    this.gifPath = URL.createObjectURL(file);
-    console.log(this.gifPath);
-  }
+  constructor(data: any, options?: any) {
+    this.episode = options.episode ?? '1';
+    this.subbed = options.subbed ?? true;
+    this.dubbed = options.dubbed ?? false;
+    this.gifPath = options.gifPath ?? '';
 
-  constructor(data: any) {
     data = data.data.Media;
     this.id = data.id;
     this.titles = data.title; // {english?: string, romaji?: string, native?: string}
@@ -51,12 +98,9 @@ export class Show {
 
     // Break the description up by paragraphs and add them back in until it is a good length
     let descParts = data.description.replace('<br>\n', '<br>').replace('<br><br>', '<br>').split('<br>');
-    while (this.description.length < 200) {
-      try {
-        this.description = this.description.concat(' ', descParts.pop(0));
-      } catch {
-        break;
-      }
+    this.description = descParts.shift();
+    while (this.description.length < 200 && descParts.length) {
+        this.description = this.description.concat(' ', descParts.shift());
     }
 
     this.resolveWarnings();
@@ -85,4 +129,24 @@ export class Show {
     if (!this.duration) missingFields.push('Duration');
     return missingFields;
   }
+
+  get export(): ExportShow {
+    return { id: this.id, episode: this.episode, subbed: this.subbed, dubbed: this.dubbed, gifPath: this.gifPath } as ExportShow;
+  }
+
+  // setGif(event: any) {
+  //   let reader = new FileReader();
+  //   reader.readAsDataURL(event.target.files[0]);
+  //   reader.addEventListener('load', () => {
+  //     if (typeof reader.result === 'string') this.gif = reader.result.slice(5);
+  //   });
+  // }
+}
+
+export interface ExportShow {
+  id: number;
+  episode: string;
+  subbed: boolean;
+  dubbed: boolean;
+  gifPath: string;
 }

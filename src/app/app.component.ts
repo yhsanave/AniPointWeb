@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, TemplateRef } from '@angular/core';
 import { DataService } from './data.service';
-import { Ballot, Show } from './data-types';
+import { Ballot, ExportShow, Show } from './data-types';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { PptxService } from './pptx.service';
 import { ToastService } from './toasts.service';
@@ -17,14 +17,20 @@ export class AppComponent {
   currentModal?: NgbModalRef;
   timeout: any = null;
   toImport: string = '';
+  isExporting: boolean = false;
 
-  get importCode() {
-      return JSON.stringify(this.ballot);
+  get importCode() {  
+    return this.ballot.exportCode;
   }
 
   set importCode(data: string) {
     try {
-      this.ballot = JSON.parse(data) as Ballot;
+      this.ballot = Object.assign(this.ballot, JSON.parse(data));
+      try {
+        this.importShows(JSON.parse(data).exportShows);
+      } catch {
+        this.toastService.show('Failed to add imported shows', { classname: 'bg-danger text-light' });
+      }
       this.toastService.show('Imported successfully', { classname: 'bg-success text-light' });
     } catch {
       this.toastService.show('Invalid import code', { classname: 'bg-danger text-light' });
@@ -38,11 +44,11 @@ export class AppComponent {
     private toastService: ToastService
   ) { }
 
-  addShow(id: number): void {
+  addShow(id: number, importParams?: any): void {
     if (!this.ballot.shows.some(show => show.id === id)) {
       this.dataService.getShowData(id).subscribe({
         next: (data) => {
-          const show = new Show(data);
+          const show = new Show(data, importParams ?? {});
           this.ballot.shows.push(show);
           this.toastService.show('Added '.concat(show.titles.english ?? show.titles.romaji, ' successfully'), { classname: 'bg-success text-light' });
         },
@@ -57,6 +63,10 @@ export class AppComponent {
   removeShow(id: number): void {
     this.ballot.shows = this.ballot.shows.filter(show => show.id !== id);
     this.closeModal();
+  }
+
+  importShows(exportShows: ExportShow[]): void {
+    exportShows.forEach(s => this.addShow(s.id, s));
   }
 
   getWarnings(show: Show): string[] {
@@ -82,7 +92,7 @@ export class AppComponent {
   }
 
   search(query: string): void {
-    this.dataService.getShows(query).subscribe({
+    this.dataService.searchShows(query).subscribe({
       next: (data) => {
         this.searchResult = data.data.Page.media;
       },
@@ -94,9 +104,7 @@ export class AppComponent {
     clearTimeout(this.timeout);
     var $this = this;
     this.timeout = setTimeout(function () {
-      if (event.keyCode != 13) {
-        $this.search(event.target.value);
-      }
+      $this.search(event.target.value);
     }, 500);
   }
 
@@ -104,15 +112,14 @@ export class AppComponent {
     return this.ballot.shows.some(s => s.id === id);
   }
 
-  export(progressModal: TemplateRef<any>, options?: any): void {
-    this.openModal(progressModal, options);
-    this.pptxService.exportPresentation(this.ballot);
+  export(): void {
+    this.isExporting = true;
+    this.pptxService.exportPresentation(this.ballot).then(() => this.isExporting = false);
   }
 
   importBallot(): void {
     this.importCode = this.toImport;
     this.toImport = '';
     this.closeModal();
-    console.log(this.ballot);
   }
 }

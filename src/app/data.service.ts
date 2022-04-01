@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Show } from './data-types';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +11,7 @@ export class DataService {
   ) { }
 
   public getShowData(id: number): Observable<any> {
-    var query = `query ($id: Int) {
+    let query = `query ($id: Int) {
       Media(type: ANIME, id: $id) {
         id
         title {
@@ -53,18 +52,18 @@ export class DataService {
       }
     }`;
     
-    var options = {
+    let options = {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       }
     }
     
-    var variables = {
+    let variables = {
       id: id
     };
 
-    var body = JSON.stringify({
+    let body = JSON.stringify({
       query: query,
       variables: variables
     });
@@ -72,8 +71,8 @@ export class DataService {
     return this.http.post('https://graphql.anilist.co', body, options);
   }
 
-  public getShows(search: string): Observable<any> {
-    var query = `query ($search: String) {
+  public searchShows(search: string): Observable<any> {
+    let query = `query ($search: String) {
           Page(page: 1, perPage: 5) {
               media(type: ANIME, search: $search) {
               id
@@ -90,18 +89,18 @@ export class DataService {
       }
     }`;
 
-    var options = {
+    let options = {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       }
     }
 
-    var variables = {
+    let variables = {
       search: search
     };
 
-    var body = JSON.stringify({
+    let body = JSON.stringify({
       query: query,
       variables: variables
     });

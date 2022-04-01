@@ -18,7 +18,7 @@
       <i class="fa-solid fa-upload"></i>
       Import
     </button>
-    <button id="exportButton" type="button" class="btn btn-success" (click)="export(progressModal, { background: 'static', size: 'md' })">
+    <button id="exportButton" type="button" class="btn btn-success" (click)="openModal(progressModal, { background: 'static', size: 'md' })">
       <i class="fa-solid fa-download"></i>
       Export
     </button>
@@ -63,11 +63,16 @@
           </table>
           <table class="gif-container">
             <thead>
-              <th>Set GIF:</th>
+              <th>
+                Set GIF:
+                <i class="fa-solid fa-circle-question" ngbTooltip="Due to technical limitations, you cannot upload GIFs directly. Instead, paste a direct link to the image below."></i>
+              </th>
             </thead>
             <tbody>
               <tr>
-                <td><input id="gif" type="file" accept="image/jpeg, image/png, image/gif" [(ngModel)]="show.gif" style="width:250px"></td>
+                <td>
+                  <input id="gif" class="form-control" type="text" placeholder="https://i.imgur.com/Aa2xtP7.gif" [(ngModel)]="show.gifPath" style="width:250px">
+                </td>
               </tr>
             </tbody>
           </table>
@@ -107,7 +112,7 @@
   </div>
   <div class="modal-body">
     <div class="search-container">
-      <input class="form-control mb-3" type="search" placeholder="Search..." (keyup)="searchTimeout($event)">
+      <input class="form-control mb-3" type="search" placeholder="Search..." (keyup)="searchTimeout($event)" autofocus>
       <table class="search-results">
         <tr *ngFor="let result of searchResult">
           <td>
@@ -130,7 +135,10 @@
 </ng-template>
 
 <ng-template #progressModal>
-  <div class="modal-header">Exporting Presentation...</div>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Export Presentation</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+  </div>
   <div class="modal-body">
     <div class="input-group mb-3">
       <div class="input-group-prepend" style="width:100%">
@@ -141,7 +149,11 @@
     <p class="text-center">This code is used to import the ballot in case you need to made edits later. You can also find it in the speaker notes on the first slide of the presentation.</p>
   </div>
   <div class="modal-footer">
-    <ngb-progressbar type="success" [value]="100" [animated]="true" [striped]="true" style="width:100%"></ngb-progressbar>
+    <button id="exportButton" type="button" class="btn btn-success" (click)="export()" *ngIf="!isExporting">
+      <i class="fa-solid fa-download"></i>
+      Export
+    </button>
+    <ngb-progressbar type="success" [value]="100" [animated]="true" [striped]="true" style="width:100%" *ngIf="isExporting">Exporting...</ngb-progressbar>
   </div>
 </ng-template>
 
