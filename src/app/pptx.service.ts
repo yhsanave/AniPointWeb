@@ -52,10 +52,17 @@ export class PptxService {
   createShowSlide(show: Show, pres: pptxgen): void {
     let slide = pres.addSlide();
 
+    // PptxGenJs doesn't properly resize images so I have to do it manually with janky nonsense >:(
+    const image = document.querySelector('#gif'.concat(show.id.toString())) as HTMLImageElement;
+    const scaleBy = (2.75 * 96) / image.naturalHeight; // Image height on slide in inches * 96 DPI (CSS Pixel) / Image height in css pixels
+    const scaledWidth = show.gifPath ? (image.naturalWidth * scaleBy) / 96 : 4.84; // Image width in css pixels * scale factor / 96 DPI (CSS Pixel)
+    const scaledPos = show.gifPath ? 7.6 + ((4.84 - scaledWidth) / 2) : 7.6; // Calculate scaled position to center image
+
     slide.addText(show.titles.english ?? show.titles.romaji, { x: .34, y: .19, h: .8, w: 12.64, fontFace: 'Britannic Bold', fontSize: 44, align: 'left', valign: 'top', shadow: { type: 'outer', angle: 45, blur: 3, offset: 3, opacity: .5 } });
     slide.addText(show.titles.native, { x: .34, y: .82, h: .44, w: 6.95, fontFace: 'Yu Gothic', fontSize: 20, bold: true, align: 'left', valign: 'top' });
     slide.addText(show.description, { x: .34, y: 1.36, h: 5.87, w: 6.33, fontFace: 'Segoe UI Semibold', fontSize: 20, align: 'left', valign: 'top' });
-    slide.addImage({ path: (show.gifPath ? show.gifPath : './assets/default.gif'), x: 7.6, y: 1.1, h: 2.75, w: 4.84, sizing: { type: 'contain', h: 2.75, w: 4.84 } });
+    slide.addImage({ path: (show.gifPath ? show.gifPath : './assets/default.gif'), x: scaledPos, y: 1.1, h: 2.75, w: scaledWidth, sizing: { type: 'contain', h: 2.75, w: scaledWidth } });
+    slide.addShape('rect', { line: { type: 'solid', width: 3, color: '000000' }, x: scaledPos, y: 1.1, h: 2.75, w: scaledWidth });
     slide.addText(this.getInfoBoxText(show), { shape: pres.ShapeType.rect, fill: { color: 'ffffff', transparency: 50 }, line: { color: '000000', width: 3 }, x: 7.6, y: 4.57, h: 2.1, w: 4.84, fontFace: 'Segoe UI Semibold', fontSize: 20, align: 'left', valign: 'top' });
   }
 

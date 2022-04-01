@@ -76,6 +76,7 @@
               </tr>
             </tbody>
           </table>
+          <img [id]="'gif'.concat(show.id.toString())" style="visibility:hidden" [src]="show.gifPath">
           <div class="warnings-container" *ngIf="getWarnings(show).length">
             <p><i class="fa-solid fa-triangle-exclamation" style="color: #ff4;"></i><b>Warnings:</b></p>
             <p *ngFor="let warning of getWarnings(show)">{{warning}}</p>
