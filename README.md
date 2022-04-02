@@ -1,4 +1,4 @@
-# AnipointWeb
+# AniPointWeb
 
 Automate the creation of PowerPoints for anime club meetings! Check it out at https://anipoint.yhsanave.me
 
