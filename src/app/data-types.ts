@@ -26,10 +26,10 @@ export class KeiBallot {
   footer: string;
   ballot: Ballot;
 
-  constructor(ballot: Ballot, body: string, footer: string) {
+  constructor(ballot: Ballot, body?: string, footer?: string) {
     this.ballot = ballot;
-    this.body = body;
-    this.footer = footer;
+    this.body = body ?? '';
+    this.footer = footer ?? '';
   }
 
   get header(): string {
@@ -45,10 +45,11 @@ export class KeiBallot {
   }
 
   get dateString() {
+    let date = new Date(this.ballot.date);
     return [
-      (this.ballot.date.getMonth() + 1).toString(),
-      this.ballot.date.getDate().toString(),
-      this.ballot.date.getFullYear().toString()
+      (date.getMonth() + 1).toString(),
+      date.getDate().toString(),
+      date.getFullYear().toString()
     ].join('/');
   }
 }

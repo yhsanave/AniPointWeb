@@ -18,9 +18,13 @@
       <i class="fa-solid fa-upload"></i>
       Import
     </button>
-    <button id="exportButton" type="button" class="btn btn-success" (click)="openModal(progressModal, { background: 'static', size: 'md' })">
+    <button id="exportButton" type="button" class="btn btn-success" style="margin-right: 10px" (click)="openModal(progressModal, { background: 'static', size: 'md' })">
       <i class="fa-solid fa-download"></i>
       Export
+    </button>
+    <button id="keiButton" type="button" class="btn btn-danger" (click)="showKeiBallotModal(keiBallotModal, { background: true, size: 'lg' })">
+      <i class="fa-solid fa-bullhorn"></i>
+      Kei-chan
     </button>
   </div>
 </div>
@@ -176,5 +180,21 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-primary" (click)="importBallot()">Import</button>
+  </div>
+</ng-template>
+
+<ng-template #keiBallotModal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Generate Kei-chan Announcement</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+  </div>
+  <div class="modal-body">
+    <label for="keiBody">Announcement Body:</label>
+    <textarea id="keiBody" [(ngModel)]="keiBallot.body" class="form-control mb-3" placeholder="Enter announcement body..."></textarea>
+    <label for="keiFooter">Footer:</label>
+    <input id="keiFooter" class="form-control mb-3" placeholder="Don't forget your receipts!" [(ngModel)]="keiBallot.footer">
+    <p class="mb-3 text-center">Fill out the fields above, then copy the code below and use the Kei-chan command <code>.makeballot [channel] [code]</code> to automatically create an announcement.</p>
+    <label for="keiExport">Export Code: </label>
+    <textarea id="keiExport" class="form-control" [ngModel]="keiBallot.exportCode" onclick="this.select()" readonly></textarea>
   </div>
 </ng-template>

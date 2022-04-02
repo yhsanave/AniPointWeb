@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, TemplateRef } from '@angular/core';
 import { DataService } from './data.service';
-import { Ballot, ExportShow, Show } from './data-types';
+import { Ballot, ExportShow, KeiBallot, Show } from './data-types';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { PptxService } from './pptx.service';
 import { ToastService } from './toasts.service';
@@ -18,6 +18,7 @@ export class AppComponent {
   timeout: any = null;
   toImport: string = '';
   isExporting: boolean = false;
+  keiBallot: KeiBallot = new KeiBallot(this.ballot);
 
   get importCode() {  
     return this.ballot.exportCode;
@@ -121,5 +122,10 @@ export class AppComponent {
     this.importCode = this.toImport;
     this.toImport = '';
     this.closeModal();
+  }
+
+  showKeiBallotModal(template: TemplateRef<any>, options?: any): void {
+    this.keiBallot.ballot = this.ballot;
+    this.openModal(template, options ?? {});
   }
 }
