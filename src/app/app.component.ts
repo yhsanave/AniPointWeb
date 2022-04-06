@@ -115,7 +115,10 @@ export class AppComponent {
 
   export(): void {
     this.isExporting = true;
-    this.pptxService.exportPresentation(this.ballot).then(() => this.isExporting = false);
+    this.pptxService.exportPresentation(this.ballot).then(() => this.isExporting = false).catch(() => {
+      this.isExporting = false;
+      this.toastService.show('Failed to export', {classname: 'bg-danger text-light'})
+    });
   }
 
   importBallot(): void {
