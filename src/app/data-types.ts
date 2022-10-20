@@ -1,8 +1,16 @@
 export class Ballot {
   title: string = '';
   number: number = 0;
-  date: Date = new Date();
+  dateString: string = new Date().toISOString().split('T')[0].replace(/-/g, '/'); // Jank gimmick to fix the javascript Date issue (initializing with - vs /)
   shows: Show[] = [];
+
+  get date(): string {
+    return this.dateString;
+  }
+
+  set date(x: string) {
+    this.dateString = x.replace(/-/g, '/')
+  }
 
   get exportShows(): ExportShow[] {
     return this.shows.map(s => s.export);
